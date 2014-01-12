@@ -4,15 +4,15 @@ class Player
     
     if warrior.feel.wall?
       warrior.pivot!
+      @feltwall=true
     else
       if warrior.feel(:backward).enemy?
         warrior.pivot!
       elsif rescue_captives(warrior)
       elsif heal_or_retreat(warrior)
       elsif attack_enemy(warrior)
-      else
-        warrior.walk!
-
+      else 
+        walk_or_pivot(warrior)
       end
     end
     @health = warrior.health
@@ -22,10 +22,8 @@ class Player
     # rescue captives, if there are any in a space next to warrior
     if warrior.look[0].captive?
         warrior.rescue! 
-        @hero=true
     elsif warrior.feel(:backward).captive?
         warrior.rescue! :backward
-        @hero=true
     end
   end
   
@@ -55,4 +53,11 @@ class Player
     warrior.look.find_index {|space| space.captive?} or 4
   end
   
+  def walk_or_pivot(warrior)
+    if warrior.feel.stairs? and !@feltwall
+      warrior.pivot!
+    else 
+      warrior.walk!
+    end
+  end      
 end
