@@ -1,12 +1,13 @@
-
 class Player
   def play_turn(warrior)
     @health ||= 20
     
     if warrior.feel.wall?
       warrior.pivot!
-    else 
-      if rescue_captives(warrior)
+    else
+      if warrior.feel(:backward).enemy?
+        warrior.pivot!
+      elsif rescue_captives(warrior)
       elsif heal_or_retreat(warrior)
       elsif attack_enemy(warrior)
       else
@@ -29,15 +30,19 @@ class Player
   end
   
   def heal_or_retreat(warrior)
-    if warrior.feel.empty? and warrior.health < 20 and warrior.health >= @health 
+    if warrior.feel.empty?
+      if warrior.health < 20 and warrior.health >= @health 
         warrior.rest!
-    elsif warrior.feel.empty? and warrior.health < 15 and warrior.health < @health 
+      elsif warrior.health < 15 and warrior.health < @health 
         warrior.walk! :backward
+      end
     end
   end
   
   def attack_enemy(warrior)
-    if enemy_position(warrior) < captive_position(warrior)
+    if warrior.feel.enemy?
+      warrior.attack!
+    elsif enemy_position(warrior) < captive_position(warrior)
       warrior.shoot!
     end
   end
@@ -51,4 +56,3 @@ class Player
   end
   
 end
-  
